@@ -4,23 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { Separator } from '@/components/ui/separator';
+import { useFavorites } from '@/hooks/useFavorites';
+import { recipesDetails } from '@/data/recipes';
 
-interface Recipe {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  difficulty: 'Легко' | 'Средне' | 'Сложно';
-  time: string;
-  category: string;
-  servings: number;
-  ingredients: { name: string; amount: string }[];
-  steps: string[];
-  tips: string[];
-  nutrition: { calories: string; protein: string; carbs: string; fat: string };
-}
-
-const recipesData: Record<number, Recipe> = {
+const recipesData = {
   1: {
     id: 1,
     title: 'Паста Карбонара',
@@ -156,7 +143,8 @@ const recipesData: Record<number, Recipe> = {
 const RecipeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const recipe = recipesData[Number(id)];
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const recipe = recipesDetails[Number(id)];
 
   if (!recipe) {
     return (
@@ -182,8 +170,17 @@ const RecipeDetail = () => {
             <Button variant="ghost" size="icon">
               <Icon name="Share2" size={20} />
             </Button>
-            <Button variant="ghost" size="icon">
-              <Icon name="Heart" size={20} />
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => toggleFavorite(recipe.id)}
+              className={isFavorite(recipe.id) ? 'text-primary' : ''}
+            >
+              <Icon 
+                name="Heart" 
+                size={20} 
+                fill={isFavorite(recipe.id) ? 'currentColor' : 'none'}
+              />
             </Button>
           </div>
         </div>
@@ -267,7 +264,7 @@ const RecipeDetail = () => {
                   Ингредиенты
                 </h2>
                 <ul className="space-y-3">
-                  {recipe.ingredients.map((ingredient, index) => (
+                  {recipe.detailedIngredients.map((ingredient, index) => (
                     <li key={index} className="flex items-start gap-3 animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
                       <Icon name="Check" size={20} className="text-primary mt-0.5 flex-shrink-0" />
                       <div className="flex-1">

@@ -6,53 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-interface Recipe {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  difficulty: 'Легко' | 'Средне' | 'Сложно';
-  time: string;
-  category: string;
-  ingredients: string[];
-}
-
-const recipes: Recipe[] = [
-  {
-    id: 1,
-    title: 'Паста Карбонара',
-    description: 'Классическая итальянская паста с беконом, яйцами и пармезаном',
-    image: 'https://cdn.poehali.dev/projects/5c54ec9d-f353-466c-af15-0987e3f6900c/files/a6ba2e11-c745-440f-9073-818a72dcb717.jpg',
-    difficulty: 'Средне',
-    time: '30 мин',
-    category: 'Основные блюда',
-    ingredients: ['паста', 'бекон', 'яйца', 'пармезан', 'чеснок']
-  },
-  {
-    id: 2,
-    title: 'Шоколадный торт',
-    description: 'Нежный многослойный торт с шоколадным кремом и ягодами',
-    image: 'https://cdn.poehali.dev/projects/5c54ec9d-f353-466c-af15-0987e3f6900c/files/2e74020d-ade9-4215-9e32-91a098aa2f44.jpg',
-    difficulty: 'Сложно',
-    time: '2 часа',
-    category: 'Десерты',
-    ingredients: ['мука', 'какао', 'яйца', 'сахар', 'масло', 'ягоды']
-  },
-  {
-    id: 3,
-    title: 'Салат Цезарь',
-    description: 'Свежий салат с курицей, сухариками и соусом Цезарь',
-    image: 'https://cdn.poehali.dev/projects/5c54ec9d-f353-466c-af15-0987e3f6900c/files/435521f0-8e96-49dd-aac4-68f8bb924ff6.jpg',
-    difficulty: 'Легко',
-    time: '20 мин',
-    category: 'Салаты',
-    ingredients: ['салат', 'курица', 'сухарики', 'пармезан', 'соус']
-  }
-];
+import { useFavorites } from '@/hooks/useFavorites';
+import { recipes } from '@/data/recipes';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -80,11 +39,14 @@ const Index = () => {
             <h1 className="text-2xl font-bold text-foreground">Вкусные Рецепты</h1>
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#" className="text-foreground hover:text-primary transition-colors">Главная</a>
+            <a href="#" className="text-primary font-semibold">Главная</a>
             <a href="#recipes" className="text-foreground hover:text-primary transition-colors">Рецепты</a>
             <a href="#categories" className="text-foreground hover:text-primary transition-colors">Категории</a>
             <a href="#tips" className="text-foreground hover:text-primary transition-colors">Советы</a>
-            <a href="#contact" className="text-foreground hover:text-primary transition-colors">Контакты</a>
+            <a href="/favorites" onClick={(e) => { e.preventDefault(); navigate('/favorites'); }} className="text-foreground hover:text-primary transition-colors flex items-center gap-1">
+              <Icon name="Heart" size={18} />
+              Избранное
+            </a>
           </nav>
           <Button variant="ghost" size="icon" className="md:hidden">
             <Icon name="Menu" size={24} />
@@ -161,8 +123,24 @@ const Index = () => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute top-4 right-4">
-                  <Button size="icon" variant="secondary" className="rounded-full shadow-lg">
-                    <Icon name="Heart" size={20} />
+                  <Button 
+                    size="icon" 
+                    variant="secondary" 
+                    className={`rounded-full shadow-lg transition-all ${
+                      isFavorite(recipe.id) 
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                        : 'bg-card/90 hover:bg-card'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(recipe.id);
+                    }}
+                  >
+                    <Icon 
+                      name="Heart" 
+                      size={20} 
+                      fill={isFavorite(recipe.id) ? 'currentColor' : 'none'}
+                    />
                   </Button>
                 </div>
                 <div className="absolute bottom-4 left-4 flex gap-2">
