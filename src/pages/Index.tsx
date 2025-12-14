@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,6 +52,7 @@ const recipes: Recipe[] = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -194,7 +196,7 @@ const Index = () => {
                     </Badge>
                   )}
                 </div>
-                <Button className="w-full">
+                <Button className="w-full" onClick={() => navigate(`/recipe/${recipe.id}`)}>
                   Смотреть рецепт
                   <Icon name="ChefHat" size={16} className="ml-2" />
                 </Button>
